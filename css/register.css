@@ -1,0 +1,362 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap");
+
+:root {
+  --paper: #ece7d8;
+  --paper-dim: #ded8c3;
+  --ink: #14140f;
+  --accent: #ff3b1f;
+  --accent-dim: #d8300f;
+  --mark: #ffd400;
+  --shadow-hard: 6px 6px 0 var(--ink);
+  --shadow-hard-sm: 4px 4px 0 var(--ink);
+  --shadow-hard-xs: 3px 3px 0 var(--ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Space Mono", "Courier New", monospace;
+  color: var(--ink);
+  background: var(--paper);
+  background-image: radial-gradient(var(--ink) 0.6px, transparent 0.6px);
+  background-size: 14px 14px;
+  background-position: -6px -6px;
+  line-height: 1.6;
+}
+
+h1, h2, h3, .brand, .logo, .nav-links a, .title {
+  font-family: "Archivo Black", "Space Grotesk", sans-serif;
+}
+
+.container {
+  width: 100%;
+  min-height: 100vh;
+  padding: 24px 32px 48px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 8px 0 22px;
+  border-bottom: 3px solid var(--ink);
+  margin-bottom: 8px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.logo-link {
+  text-decoration: none;
+}
+
+.logo {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 46px;
+  height: 46px;
+  background: var(--accent);
+  border: 3px solid var(--ink);
+  color: var(--paper);
+  font-weight: 900;
+  font-size: 0.95rem;
+  transform: rotate(-4deg);
+  box-shadow: var(--shadow-hard-xs);
+}
+
+.nav-links {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.nav-links a {
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  border: 2px solid transparent;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.nav-links a:hover {
+  border-color: var(--ink);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-hard-xs);
+}
+
+.nav-links a.active {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--ink);
+  transform: rotate(-2deg);
+  box-shadow: var(--shadow-hard-xs);
+}
+
+main {
+  max-width: 860px;
+  margin: 24px auto 0;
+}
+
+.hero {
+  padding: 16px 0 24px;
+}
+
+.hero h1 {
+  margin: 0 0 10px;
+  font-size: clamp(2rem, 3vw, 2.75rem);
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.hero p {
+  margin: 0;
+  max-width: 640px;
+  line-height: 1.7;
+}
+
+/* ============================================
+   REGISTER — the one place precision beats mess.
+   Decoration stays imperfect; inputs stay square and calm.
+   ============================================ */
+.form-card {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  background: var(--paper-dim);
+  border: 3px solid var(--ink);
+  overflow: hidden;
+  box-shadow: var(--shadow-hard);
+  position: relative;
+}
+
+.form-card::before {
+  content: "";
+  display: block;
+  height: 6px;
+  background: repeating-linear-gradient(90deg, var(--accent) 0 14px, var(--ink) 14px 16px);
+}
+
+.form-card .title-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 22px 24px 14px;
+  border-bottom: 3px solid var(--ink);
+}
+
+.title-icon {
+  width: 22px;
+  height: 22px;
+  color: var(--ink);
+}
+
+.title {
+  font-size: 1.2rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 24px 24px;
+}
+
+.input-group {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  position: relative;
+}
+
+.input-group:hover {
+  box-shadow: var(--shadow-hard-xs);
+}
+
+.input-group:focus-within {
+  box-shadow: 4px 4px 0 var(--accent);
+  transform: translate(-2px, -2px);
+}
+
+.input-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--paper-dim);
+  border: 2px solid var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.input-group:focus-within .input-icon {
+  background: var(--accent);
+}
+
+.input-icon svg {
+  width: 18px;
+  height: 18px;
+  color: var(--ink);
+}
+
+.input-group:focus-within .input-icon svg {
+  color: var(--paper);
+}
+
+.input-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.input-group label {
+  display: block;
+  color: var(--ink);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font-size: 0.96rem;
+  font-weight: 700;
+  padding: 0;
+  font-family: "Space Mono", monospace;
+}
+
+.input-group input::placeholder,
+.input-group textarea::placeholder {
+  color: #7c775f;
+  font-weight: 400;
+}
+
+.radio-group,
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 2px;
+}
+
+.radio-group label,
+.checkbox-group label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+  font-weight: 400;
+  font-size: 0.92rem;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 96px;
+  line-height: 1.55;
+}
+
+.sign {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: var(--accent);
+  padding: 15px 18px;
+  color: var(--paper);
+  border: 3px solid var(--ink);
+  font-family: "Archivo Black", sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  margin-top: 4px;
+  box-shadow: var(--shadow-hard-sm);
+}
+
+.sign:hover {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-hard-xs);
+}
+
+.sign-arrow {
+  transition: transform 0.3s ease;
+}
+
+.sign:hover .sign-arrow {
+  transform: translateX(4px);
+}
+
+footer {
+  min-height: 40px;
+  border-top: 3px solid var(--ink);
+  margin-top: 40px;
+}
+
+@media (max-width: 760px) {
+  .container {
+    padding: 20px;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nav-links {
+    justify-content: flex-start;
+  }
+
+  .form {
+    padding: 4px 16px 16px;
+  }
+
+  .form-card .title-section {
+    padding: 16px 16px 12px;
+  }
+
+  .input-group {
+    grid-template-columns: 1fr;
+  }
+
+  .input-icon {
+    width: 34px;
+    height: 34px;
+  }
+}
