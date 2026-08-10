@@ -1,0 +1,325 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap");
+
+:root {
+  --paper: #ece7d8;
+  --paper-dim: #ded8c3;
+  --ink: #14140f;
+  --accent: #ff3b1f;
+  --accent-dim: #d8300f;
+  --mark: #ffd400;
+  --shadow-hard: 6px 6px 0 var(--ink);
+  --shadow-hard-sm: 4px 4px 0 var(--ink);
+  --shadow-hard-xs: 3px 3px 0 var(--ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  position: relative;
+  overflow-x: hidden;
+  font-family: "Space Mono", "Courier New", monospace;
+  color: var(--ink);
+  background: var(--paper);
+  background-image: radial-gradient(var(--ink) 0.6px, transparent 0.6px);
+  background-size: 14px 14px;
+  background-position: -6px -6px;
+  line-height: 1.6;
+}
+
+h1, h2, h3, .brand, .logo, .nav-links a {
+  font-family: "Archivo Black", "Space Grotesk", sans-serif;
+}
+
+#glyphMatrixBackground {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.16;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: 100vh;
+  padding: 24px 32px 48px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 8px 0 22px;
+  border-bottom: 3px solid var(--ink);
+  margin-bottom: 8px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.logo-link {
+  text-decoration: none;
+}
+
+.logo {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 46px;
+  height: 46px;
+  background: var(--accent);
+  border: 3px solid var(--ink);
+  color: var(--paper);
+  font-weight: 900;
+  font-size: 0.95rem;
+  transform: rotate(-4deg);
+  box-shadow: var(--shadow-hard-xs);
+}
+
+.nav-links {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.nav-links a {
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  border: 2px solid transparent;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.nav-links a:hover {
+  border-color: var(--ink);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-hard-xs);
+}
+
+.nav-links a.active {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--ink);
+  transform: rotate(-2deg);
+  box-shadow: var(--shadow-hard-xs);
+}
+
+.hero {
+  padding: 16px 0 32px;
+}
+
+.hero h1 {
+  margin: 0 0 10px;
+  font-size: clamp(2rem, 3vw, 2.75rem);
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.hero p {
+  margin: 0;
+  max-width: 640px;
+  line-height: 1.7;
+}
+
+/* ============================================
+   EVENTS — steps as stamped counters, table as ledger
+   ============================================ */
+.event-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 1.1fr 0.9fr;
+  align-items: start;
+}
+
+.card {
+  background: var(--paper-dim);
+  border: 3px solid var(--ink);
+  padding: 24px;
+  box-shadow: var(--shadow-hard-sm);
+}
+
+.event-grid .card:first-child {
+  transform: rotate(-0.5deg);
+}
+
+.event-grid .card:last-child {
+  transform: rotate(0.4deg);
+}
+
+.card h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.event-list {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.event-list li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 2.6em;
+  margin-bottom: 0.9em;
+}
+
+.event-list li::before {
+  content: counter(step, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: -0.15em;
+  font-family: "Archivo Black", sans-serif;
+  font-size: 0.85em;
+  color: var(--paper);
+  background: var(--ink);
+  padding: 0.15em 0.4em;
+  transform: rotate(-3deg);
+}
+
+.event-list li:nth-child(even)::before {
+  transform: rotate(3deg);
+  background: var(--accent);
+}
+
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.schedule-table th,
+.schedule-table td {
+  border: 2px solid var(--ink);
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.schedule-table th {
+  background: var(--accent);
+  color: var(--paper);
+  text-transform: uppercase;
+  font-size: 0.78em;
+  letter-spacing: 0.06em;
+}
+
+.schedule-table tr:nth-child(even) {
+  background: var(--paper);
+}
+
+.video-wrap {
+  margin-top: 26px;
+  position: relative;
+  padding: 14px;
+  border: 3px solid var(--ink);
+  background: var(--paper-dim);
+  box-shadow: var(--shadow-hard-sm);
+}
+
+.video-wrap::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 40px;
+  width: 70px;
+  height: 24px;
+  background: rgba(255, 212, 0, 0.65);
+  border: 1px solid var(--ink);
+  transform: rotate(-4deg);
+  z-index: 2;
+}
+
+.video-wrap::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  right: 46px;
+  width: 70px;
+  height: 24px;
+  background: rgba(255, 212, 0, 0.65);
+  border: 1px solid var(--ink);
+  transform: rotate(3deg);
+  z-index: 2;
+}
+
+.video-wrap video {
+  width: 100%;
+  display: block;
+  border: 2px solid var(--ink);
+  position: relative;
+}
+
+.event-search {
+  width: 100%;
+  border: 2px solid var(--ink);
+  padding: 10px 12px;
+  font-family: inherit;
+  margin-bottom: 12px;
+  background: var(--paper);
+}
+
+.dynamic-event-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.dynamic-event-card {
+  border: 2px solid var(--ink);
+  padding: 14px;
+  background: var(--paper);
+}
+
+.dynamic-event-card h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  text-transform: uppercase;
+}
+
+.dynamic-event-card p {
+  margin: 0 0 6px;
+}
+
+footer {
+  min-height: 40px;
+  border-top: 3px solid var(--ink);
+  margin-top: 40px;
+}
+
+@media (max-width: 900px) {
+  .event-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .container {
+    padding: 20px;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nav-links {
+    justify-content: flex-start;
+  }
+}
