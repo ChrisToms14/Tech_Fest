@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TechFest 2026 | Admin Panel</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topbar">
+        <div class="brand">
+          <a href="index.html" class="logo-link" aria-label="TechFest home">
+            <span class="logo">TF</span>
+          </a>
+        </div>
+        <nav class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="events.html">Events</a>
+          <a href="register.html">Register</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="hero-copy" data-reveal>
+            <p class="eyebrow">Authorized only</p>
+            <h1>Organizer control center</h1>
+            <p class="hero-sub">Manage task lists and review participant registrations from one secure dashboard.</p>
+          </div>
+        </section>
+
+        <section class="panel-grid">
+          <article class="panel-card" data-reveal>
+            <div class="title-section">
+              <p class="title">Organizer Task Manager</p>
+            </div>
+            <div class="task-input-row">
+              <input type="text" id="taskInput" placeholder="Enter organizer task" />
+              <button type="button" id="addTask">Add Task</button>
+            </div>
+            <ul id="taskList" class="task-list"></ul>
+          </article>
+
+          <article class="panel-card" data-reveal>
+            <div class="title-section">
+              <p class="title">Participant Registry</p>
+            </div>
+            <div class="participant-toolbar">
+              <p>Total Participants: <span id="participantCount">0</span></p>
+              <p id="participantSummary">Total registrations: 0</p>
+              <input type="search" id="participantSearch" placeholder="Search participants..." />
+              <button type="button" id="clearParticipants">Clear All</button>
+            </div>
+            <div id="participantList" class="participant-list"></div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="js/app.js"></script>
+  </body>
+</html>

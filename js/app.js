@@ -1,6 +1,9 @@
-const storageKeys = {
+﻿const storageKeys = {
+  users: 'techfestUsers',
   participants: 'techfestParticipants',
-  tasks: 'techfestTasks'
+  tasks: 'techfestTasks',
+  authSession: 'techfestAuthSession',
+  visitorName: 'visitorName'
 };
 
 const eventLabels = {
@@ -9,26 +12,220 @@ const eventLabels = {
   webdev: 'Web Dev Showdown'
 };
 
+const defaultAdmin = {
+  id: 1,
+  name: 'Administrator',
+  username: 'admin',
+  email: 'admin@techfest2026.edu',
+  password: 'admin123',
+  role: 'admin'
+};
+
+const pageName = window.location.pathname.split('/').pop() || 'index.html';
+
+const getStoredUsers = () => {
+  const stored = localStorage.getItem(storageKeys.users);
+  return stored ? JSON.parse(stored) : [];
+};
+
+const saveUsers = (users) => {
+  localStorage.setItem(storageKeys.users, JSON.stringify(users));
+};
+
+const ensureDefaultAdmin = () => {
+  const users = getStoredUsers();
+  if (!users.some((user) => user.username === 'admin')) {
+    users.unshift(defaultAdmin);
+    saveUsers(users);
+  }
+  return getStoredUsers();
+};
+
+const getCurrentUser = () => {
+  const stored = localStorage.getItem(storageKeys.authSession);
+  return stored ? JSON.parse(stored) : null;
+};
+
+const setCurrentUser = (user) => {
+  localStorage.setItem(storageKeys.authSession, JSON.stringify(user));
+};
+
+const clearCurrentUser = () => {
+  localStorage.removeItem(storageKeys.authSession);
+  sessionStorage.removeItem(storageKeys.visitorName);
+};
+
+const getParticipants = () => {
+  const stored = localStorage.getItem(storageKeys.participants);
+  return stored ? JSON.parse(stored) : [];
+};
+
+const saveParticipants = (participants) => {
+  localStorage.setItem(storageKeys.participants, JSON.stringify(participants));
+};
+
+const getTasks = () => {
+  const stored = localStorage.getItem(storageKeys.tasks);
+  return stored ? JSON.parse(stored) : [];
+};
+
+const saveTasks = (tasks) => {
+  localStorage.setItem(storageKeys.tasks, JSON.stringify(tasks));
+};
+
+const setFeedback = (element, message, type = 'error') => {
+  if (!element) return;
+  element.textContent = message;
+  element.className = `form-feedback ${type}`;
+};
+
 const saveParticipantAsync = async (participant) => {
   await new Promise((resolve) => setTimeout(resolve, 220));
   return participant;
 };
 
+const initAuthProtection = () => {
+  ensureDefaultAdmin();
+
+  const currentUser = getCurrentUser();
+  const isAuthPage = ['login.html', 'signup.html'].includes(pageName);
+  const isAdminPage = pageName === 'admin.html';
+
+  if (!currentUser && !isAuthPage) {
+    window.location.replace('login.html');
+    return false;
+  }
+
+  if (currentUser && isAuthPage) {
+    window.location.replace('index.html');
+    return false;
+  }
+
+  if (isAdminPage && currentUser?.role !== 'admin') {
+    window.location.replace('index.html');
+    return false;
+  }
+
+  return true;
+};
+
+const initNavigation = (currentUser) => {
+  const nav = document.querySelector('.nav-links');
+  if (!nav) return;
+
+  nav.querySelectorAll('.nav-auth-link').forEach((link) => link.remove());
+
+  const authLink = currentUser
+    ? '<a href="login.html" class="nav-auth-link" data-action="logout">Logout</a>'
+    : '<a href="login.html" class="nav-auth-link">Login</a>';
+
+  nav.insertAdjacentHTML('beforeend', authLink);
+
+  if (currentUser?.role === 'admin') {
+    nav.insertAdjacentHTML('beforeend', '<a href="admin.html" class="nav-auth-link">Admin</a>');
+  }
+
+  nav.addEventListener('click', (event) => {
+    const logoutLink = event.target.closest('a[data-action="logout"]');
+    if (!logoutLink) return;
+    event.preventDefault();
+    clearCurrentUser();
+    window.location.href = 'login.html';
+  });
+};
+
+const initAuthPages = () => {
+  const loginForm = document.getElementById('loginForm');
+  if (loginForm) {
+    const feedback = document.getElementById('loginFeedback');
+    loginForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      const users = ensureDefaultAdmin();
+      const matchedUser = users.find((user) => (user.username === username || user.email === username) && user.password === password);
+
+      if (!matchedUser) {
+        setFeedback(feedback, 'Invalid username or password.', 'error');
+        return;
+      }
+
+      setCurrentUser(matchedUser);
+      setFeedback(feedback, 'Signed in successfully.', 'success');
+      window.location.href = matchedUser.role === 'admin' ? 'admin.html' : 'index.html';
+    });
+  }
+
+  const signupForm = document.getElementById('signupForm');
+  if (signupForm) {
+    const feedback = document.getElementById('signupFeedback');
+    signupForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const name = document.getElementById('signupName').value.trim();
+      const username = document.getElementById('signupUsername').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value.trim();
+      const confirmPassword = document.getElementById('signupConfirmPassword').value.trim();
+
+      if (!name || !username || !email || !password || !confirmPassword) {
+        setFeedback(feedback, 'Please complete every field.', 'error');
+        return;
+      }
+
+      if (password.length < 6) {
+        setFeedback(feedback, 'Password must be at least 6 characters long.', 'error');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setFeedback(feedback, 'Passwords do not match.', 'error');
+        return;
+      }
+
+      const users = ensureDefaultAdmin();
+      if (users.some((user) => user.username === username || user.email === email)) {
+        setFeedback(feedback, 'That username or email is already taken.', 'error');
+        return;
+      }
+
+      const newUser = {
+        id: Date.now(),
+        name,
+        username,
+        email,
+        password,
+        role: 'participant'
+      };
+
+      users.push(newUser);
+      saveUsers(users);
+      setCurrentUser(newUser);
+      setFeedback(feedback, 'Account created successfully.', 'success');
+      window.location.href = 'index.html';
+    });
+  }
+};
+
 const initWelcomeMessage = () => {
   const welcomeMessage = document.getElementById('welcomeMessage');
+  const authSummary = document.getElementById('authSummary');
   if (!welcomeMessage) return;
 
-  const savedName = sessionStorage.getItem('visitorName');
-  if (savedName) {
-    welcomeMessage.textContent = `Welcome back, ${savedName}!`;
+  const currentUser = getCurrentUser();
+  if (currentUser) {
+    welcomeMessage.textContent = `Welcome, ${currentUser.name || currentUser.username}!`;
+    if (authSummary) {
+      authSummary.textContent = currentUser.role === 'admin'
+        ? 'You can manage tasks and review registrations from the admin dashboard.'
+        : 'You can explore the festival pages and register for experiences.';
+    }
     return;
   }
 
-  const name = window.prompt('Welcome to TechFest 2026! What is your name?');
-  if (name && name.trim()) {
-    const cleanName = name.trim();
-    sessionStorage.setItem('visitorName', cleanName);
-    welcomeMessage.textContent = `Welcome, ${cleanName}!`;
+  welcomeMessage.textContent = 'Welcome to TechFest 2026!';
+  if (authSummary) {
+    authSummary.textContent = 'Please log in to unlock the full experience.';
   }
 };
 
@@ -39,7 +236,7 @@ const initTaskManager = () => {
 
   if (!taskInput || !addTaskButton || !taskList) return;
 
-  let tasks = JSON.parse(localStorage.getItem(storageKeys.tasks) || '[]');
+  let tasks = getTasks();
 
   const renderTasks = () => {
     taskList.innerHTML = '';
@@ -65,10 +262,6 @@ const initTaskManager = () => {
     });
   };
 
-  const saveTasks = () => {
-    localStorage.setItem(storageKeys.tasks, JSON.stringify(tasks));
-  };
-
   const addTask = () => {
     const text = taskInput.value.trim();
     if (!text) return;
@@ -79,7 +272,7 @@ const initTaskManager = () => {
       completed: false
     }];
     taskInput.value = '';
-    saveTasks();
+    saveTasks(tasks);
     renderTasks();
   };
 
@@ -98,13 +291,13 @@ const initTaskManager = () => {
     const id = Number(button.getAttribute('data-id'));
     if (button.classList.contains('task-toggle')) {
       tasks = tasks.map((task) => task.id === id ? { ...task, completed: !task.completed } : task);
-      saveTasks();
+      saveTasks(tasks);
       renderTasks();
     }
 
     if (button.classList.contains('task-delete')) {
       tasks = tasks.filter((task) => task.id !== id);
-      saveTasks();
+      saveTasks(tasks);
       renderTasks();
     }
   });
@@ -151,20 +344,16 @@ const initRegistration = () => {
   const form = document.getElementById('registrationForm');
   if (!form) return;
 
+  const formFeedback = document.getElementById('formFeedback');
   const nameInput = document.getElementById('fullname');
   const emailInput = document.getElementById('email');
   const phoneInput = document.getElementById('phone');
   const dobInput = document.getElementById('dob');
   const departmentInput = document.getElementById('dept');
   const messageInput = document.getElementById('comments');
-  const participantSearch = document.getElementById('participantSearch');
-  const participantList = document.getElementById('participantList');
-  const participantCount = document.getElementById('participantCount');
-  const participantSummary = document.getElementById('participantSummary');
-  const clearParticipantsButton = document.getElementById('clearParticipants');
   const submitButton = form.querySelector('button[type="submit"]');
 
-  if (!nameInput || !emailInput || !phoneInput || !dobInput || !departmentInput || !messageInput || !participantList || !participantCount || !submitButton) return;
+  if (!nameInput || !emailInput || !phoneInput || !dobInput || !departmentInput || !messageInput || !submitButton) return;
 
   const textInputs = [nameInput, emailInput, phoneInput, dobInput, messageInput];
   textInputs.forEach((input) => {
@@ -174,7 +363,7 @@ const initRegistration = () => {
     input.closest('.input-content').appendChild(error);
   });
 
-  let participants = JSON.parse(localStorage.getItem(storageKeys.participants) || '[]');
+  let participants = getParticipants();
   let editingId = null;
 
   const resetValidation = () => {
@@ -194,7 +383,10 @@ const initRegistration = () => {
     form.reset();
     resetValidation();
     editingId = null;
-    submitButton.innerHTML = '<span>Submit Application</span><span class="sign-arrow">→</span>';
+    sessionStorage.removeItem('editingParticipantId');
+    if (submitButton) {
+      submitButton.innerHTML = '<span>Submit Application</span><span class="sign-arrow">→</span>';
+    }
   };
 
   const validateField = (input, validator, message) => {
@@ -213,6 +405,85 @@ const initRegistration = () => {
     if (error) error.textContent = '';
     return true;
   };
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const isNameValid = validateField(nameInput, (value) => /^[A-Za-z][A-Za-z .'-]{2,49}$/.test(value), 'Name must start with a letter and be 3-50 characters long.');
+    const isEmailValid = validateField(emailInput, (value) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value), 'Enter a valid email address.');
+    const isPhoneValid = validateField(phoneInput, (value) => /^[6-9]\d{9}$/.test(value), 'Enter a valid 10-digit Indian mobile number.');
+
+    if (!isNameValid || !isEmailValid || !isPhoneValid) {
+      setFeedback(formFeedback, 'Please correct the invalid fields before submitting.', 'error');
+      return;
+    }
+
+    const selectedEvents = Array.from(form.querySelectorAll('input[name="events"]:checked')).map((checkbox) => eventLabels[checkbox.value] || checkbox.value);
+    const participant = {
+      id: editingId || Date.now(),
+      name: nameInput.value.trim(),
+      email: emailInput.value.trim(),
+      phone: phoneInput.value.trim(),
+      dob: dobInput.value,
+      gender: form.querySelector('input[name="gender"]:checked')?.value || 'other',
+      department: departmentInput.value,
+      events: selectedEvents,
+      message: messageInput.value.trim()
+    };
+
+    if (editingId) {
+      participants = participants.map((item) => item.id === editingId ? participant : item);
+    } else {
+      participants = [...participants, participant];
+    }
+
+    await saveParticipantAsync(participant);
+    saveParticipants(participants);
+    setFeedback(formFeedback, editingId ? 'Participant updated successfully.' : 'Registration saved successfully. The admin can review it from the admin dashboard.', 'success');
+    resetForm();
+  });
+
+  const editingParticipantId = sessionStorage.getItem('editingParticipantId');
+  if (editingParticipantId) {
+    const participant = participants.find((entry) => entry.id === Number(editingParticipantId));
+    if (participant) {
+      editingId = participant.id;
+      nameInput.value = participant.name;
+      emailInput.value = participant.email;
+      phoneInput.value = participant.phone;
+      dobInput.value = participant.dob;
+      departmentInput.value = participant.department;
+      messageInput.value = participant.message;
+
+      const genderInput = form.querySelector(`input[name="gender"][value="${participant.gender}"]`);
+      if (genderInput) genderInput.checked = true;
+
+      participant.events.forEach((eventName) => {
+        const eventValue = Object.keys(eventLabels).find((key) => eventLabels[key] === eventName);
+        if (eventValue) {
+          const checkbox = form.querySelector(`input[name="events"][value="${eventValue}"]`);
+          if (checkbox) checkbox.checked = true;
+        }
+      });
+
+      submitButton.innerHTML = '<span>Update Participant</span><span class="sign-arrow">→</span>';
+      nameInput.focus();
+    }
+  }
+
+  resetValidation();
+};
+
+const initAdminParticipants = () => {
+  const participantSearch = document.getElementById('participantSearch');
+  const participantList = document.getElementById('participantList');
+  const participantCount = document.getElementById('participantCount');
+  const participantSummary = document.getElementById('participantSummary');
+  const clearParticipantsButton = document.getElementById('clearParticipants');
+
+  if (!participantList || !participantCount || !participantSummary) return;
+
+  let participants = getParticipants();
 
   const renderParticipants = () => {
     const searchTerm = participantSearch ? participantSearch.value.trim().toLowerCase() : '';
@@ -252,56 +523,15 @@ const initRegistration = () => {
 
     participantCount.textContent = String(participants.length);
     const totalRegistrations = participants.reduce((total, participant) => total + participant.events.length, 0);
-    if (participantSummary) participantSummary.textContent = `Total registrations: ${totalRegistrations}`;
+    participantSummary.textContent = `Total registrations: ${totalRegistrations}`;
   };
 
-  const saveParticipants = () => {
-    localStorage.setItem(storageKeys.participants, JSON.stringify(participants));
-  };
-
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    const isNameValid = validateField(nameInput, (value) => /^[A-Za-z][A-Za-z .'-]{2,49}$/.test(value), 'Name must start with a letter and be 3-50 characters long.');
-    const isEmailValid = validateField(emailInput, (value) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value), 'Enter a valid email address.');
-    const isPhoneValid = validateField(phoneInput, (value) => /^[6-9]\d{9}$/.test(value), 'Enter a valid 10-digit Indian mobile number.');
-
-    if (!isNameValid || !isEmailValid || !isPhoneValid) return;
-
-    const selectedEvents = Array.from(form.querySelectorAll('input[name="events"]:checked')).map((checkbox) => eventLabels[checkbox.value] || checkbox.value);
-    const participant = {
-      id: editingId || Date.now(),
-      name: nameInput.value.trim(),
-      email: emailInput.value.trim(),
-      phone: phoneInput.value.trim(),
-      dob: dobInput.value,
-      gender: form.querySelector('input[name="gender"]:checked')?.value || 'other',
-      department: departmentInput.value,
-      events: selectedEvents,
-      message: messageInput.value.trim()
-    };
-
-    if (editingId) {
-      participants = participants.map((item) => item.id === editingId ? participant : item);
-    } else {
-      participants = [...participants, participant];
-    }
-
-    await saveParticipantAsync(participant);
-    saveParticipants();
-    renderParticipants();
-    resetForm();
-  });
-
-  if (participantSearch) {
-    participantSearch.addEventListener('input', renderParticipants);
-  }
+  participantSearch?.addEventListener('input', renderParticipants);
 
   clearParticipantsButton?.addEventListener('click', () => {
     participants = [];
-    saveParticipants();
+    saveParticipants(participants);
     renderParticipants();
-    resetForm();
   });
 
   participantList.addEventListener('click', (event) => {
@@ -311,38 +541,15 @@ const initRegistration = () => {
     const id = Number(button.getAttribute('data-id'));
     if (button.getAttribute('data-action') === 'delete') {
       participants = participants.filter((participant) => participant.id !== id);
-      saveParticipants();
+      saveParticipants(participants);
       renderParticipants();
       return;
     }
 
-    const participant = participants.find((item) => item.id === id);
-    if (!participant) return;
-
-    editingId = participant.id;
-    nameInput.value = participant.name;
-    emailInput.value = participant.email;
-    phoneInput.value = participant.phone;
-    dobInput.value = participant.dob;
-    departmentInput.value = participant.department;
-    messageInput.value = participant.message;
-
-    const genderInput = form.querySelector(`input[name="gender"][value="${participant.gender}"]`);
-    if (genderInput) genderInput.checked = true;
-
-    participant.events.forEach((eventName) => {
-      const eventValue = Object.keys(eventLabels).find((key) => eventLabels[key] === eventName);
-      if (eventValue) {
-        const checkbox = form.querySelector(`input[name="events"][value="${eventValue}"]`);
-        if (checkbox) checkbox.checked = true;
-      }
-    });
-
-    submitButton.innerHTML = '<span>Update Participant</span><span class="sign-arrow">→</span>';
-    nameInput.focus();
+    sessionStorage.setItem('editingParticipantId', String(id));
+    window.location.href = 'register.html';
   });
 
-  resetForm();
   renderParticipants();
 };
 
@@ -503,10 +710,16 @@ const initGallery = () => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-  initGlyphMatrixBackground();
+  if (!initAuthProtection()) return;
+
+  const currentUser = getCurrentUser();
+  initNavigation(currentUser);
+  initAuthPages();
   initWelcomeMessage();
   initTaskManager();
   initEventsPage();
   initRegistration();
+  initAdminParticipants();
   initGallery();
+  initGlyphMatrixBackground();
 });

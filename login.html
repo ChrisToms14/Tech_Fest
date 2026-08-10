@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TechFest 2026 | Login</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container auth-shell">
+      <header class="topbar">
+        <div class="brand">
+          <a href="index.html" class="logo-link" aria-label="TechFest home">
+            <span class="logo">TF</span>
+          </a>
+        </div>
+        <nav class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="events.html">Events</a>
+          <a href="register.html">Register</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </header>
+
+      <main class="auth-page">
+        <section class="auth-card">
+          <div class="auth-card__header">
+            <p class="eyebrow">Secure access</p>
+            <h1>Welcome back</h1>
+            <p>Log in to explore TechFest and reach the admin dashboard.</p>
+          </div>
+
+          <form id="loginForm" class="auth-form" novalidate>
+            <label class="auth-field">
+              <span>Username</span>
+              <input type="text" id="loginUsername" name="username" placeholder="Enter username" required />
+            </label>
+            <label class="auth-field">
+              <span>Password</span>
+              <input type="password" id="loginPassword" name="password" placeholder="Enter password" required />
+            </label>
+            <p id="loginFeedback" class="form-feedback" aria-live="polite"></p>
+            <button type="submit" class="sign">Login</button>
+          </form>
+
+          <p class="auth-switch">
+            New here?
+            <a href="signup.html">Create an account</a>
+          </p>
+          <p class="auth-note">Demo admin access: admin / admin123</p>
+        </section>
+      </main>
+    </div>
+
+    <script src="js/app.js"></script>
+  </body>
+</html>
